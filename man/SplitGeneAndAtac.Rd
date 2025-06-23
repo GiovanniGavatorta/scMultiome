@@ -7,7 +7,7 @@
 SplitGeneAndAtac(dt)
 }
 \arguments{
-\item{dt}{A `data.table` created by `ConvertMatrix()` with a column called `"row.names"` 
+\item{dt}{A `data.table` created by `ConvertMatrix()` with a column called `"row.names"`
 containing either Ensembl gene IDs or genomic peak coordinates.}
 }
 \value{
