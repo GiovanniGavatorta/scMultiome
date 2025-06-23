@@ -1,0 +1,25 @@
+Package: scMultiome
+Type: Package
+Title: Toolkit for Integrating and Visualizing Multi-Omics Data
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Giovanni", "Gavatorta",
+      email = "giovanni.gavatorta@edu.unito.it",
+      role = c("aut", "cre")
+    )
+  )
+Imports:
+    GenomicRanges,
+    IRanges,
+    rtracklayer,
+    data.table,
+    ggplot2,
+    dplyr
+Description: Provides functions for integrating, normalizing, and visualizing multi-omics datasets,
+ including gene expression and ATAC-seq data. The package features genomic annotation,
+ overlap analysis of genomic ranges, and interactive plots organized by chromosome.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
