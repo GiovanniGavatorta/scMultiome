@@ -5,7 +5,7 @@
 #' one for gene expression (rows starting with "ENSG") and one for ATAC-seq peaks
 #' (rows starting with "chr").
 #'
-#' @param dt A `data.table` created by `ConvertMatrix()` with a column called `"row.names"` 
+#' @param dt A `data.table` created by `ConvertMatrix()` with a column called `"row.names"`
 #'          containing either Ensembl gene IDs or genomic peak coordinates.
 #'
 #' @return A list with two named elements:
@@ -14,7 +14,6 @@
 #'   \item{atac_peaks}{A `data.table` of ATAC-seq peak rows (chromosome coordinates).}
 #' }
 #'
-#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -26,16 +25,17 @@
 #' head(gene_expr_dt)
 #' head(atac_peaks_dt)
 #' }
+#' @export
 SplitGeneAndAtac <- function(dt) {
-  
-  row_ids <- dt[[1]]  
-  
+
+  row_ids <- dt[[1]]
+
   gene <- grepl("^ENSG", row_ids)
   peak <- grepl("^chr", row_ids)
-  
+
   gene_expr <- dt[gene, ]
   atac_peaks <- dt[peak, ]
-  
+
   return(list(gene_expr = gene_expr, atac_peaks = atac_peaks))
 }
 
