@@ -33,9 +33,9 @@ Use `ConvertMatrix` to convert the sparse matrix into a full matrix and save the
 
 ```{r}
 expr_dt <- ConvertMatrix(
-  mtx_path = system.file("extdata/expression/matrix.mtx.gz", package = "scMultiome"),
-  features_path = system.file("extdata/expression/features.tsv.gz", package = "scMultiome"),
-  barcodes_path = system.file("extdata/expression/barcodes.tsv.gz", package = "scMultiome")
+  mtx_path = system.file("extdata/matrix.mtx.gz", package = "scMultiome"),
+  features_path = system.file("extdata/features.tsv.gz", package = "scMultiome"),
+  barcodes_path = system.file("extdata/barcodes.tsv.gz", package = "scMultiome")
 )
 knitr::kable(head(expr_dt))
 ```
@@ -68,14 +68,14 @@ knitr::kable(head(sum_data$atac_totals))
 First, use `CreateGRangeObj` to convert a data.frame of genomic features and metadata into a `GRanges` object. It is typically used to convert ATAC-seq peaks or gene expression features into genomic ranges.
 
 ```{r}
-df <- fread(system.file("extdata/expression/features.tsv.gz", package = "scMultiome"), header = FALSE)
+df <- fread(system.file("extdata/features.tsv.gz", package = "scMultiome"), header = FALSE)
 gr <- CreateGRangeObj(specific_feature = df, feature_id = "Expr")
 ```
 
 Then, use `PrepareGRanges` to processes summarized expression or ATAC-seq data by computing row sums and merging them with genomic coordinates from a features annotation file, before converting them into a `GRanges` object.
 
 ```{r}
-features <- fread(system.file("extdata/expression/features.tsv.gz", package = "scMultiome"), header = FALSE)
+features <- fread(system.file("extdata/features.tsv.gz", package = "scMultiome"), header = FALSE)
 expr_gr <- PrepareGRanges(gene_expr_dt, features, feature_id = "Expr")
 atac_gr <- PrepareGRanges(atac_peaks_dt, features, feature_id = "ATAC")
 ```
