@@ -14,6 +14,7 @@
 #'
 #' @return A `GRanges` object with genomic ranges and feature-level metadata
 #'
+#' @import data.table
 #' @examples
 #' \dontrun{
 #' gr <- PrepareGRanges(summarized_dt = gene_expr, features_dt = features, feature_id = "Expr")
