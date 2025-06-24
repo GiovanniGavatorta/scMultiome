@@ -75,6 +75,7 @@ gr <- CreateGRangeObj(specific_feature = df, feature_id = "Expr")
 Then, use `PrepareGRanges` to processes summarized expression or ATAC-seq data by computing row sums and merging them with genomic coordinates from a features annotation file, before converting them into a `GRanges` object.
 
 ```{r}
+library(data.table)
 features <- fread(system.file("extdata/features.tsv.gz", package = "scMultiome"), header = FALSE)
 expr_gr <- PrepareGRanges(gene_expr_dt, features, feature_id = "Expr")
 atac_gr <- PrepareGRanges(atac_peaks_dt, features, feature_id = "ATAC")
