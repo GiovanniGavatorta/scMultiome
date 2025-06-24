@@ -21,17 +21,31 @@
 #' }
 #' @export
 PrepareGRanges <- function(summarized_dt, features_dt, feature_id) {
-  summarized_dt$sum <- rowSums(summarized_dt[, -1, with = FALSE], na.rm = TRUE)
+  # Ensure summarized_dt is a data.table
+  if (!data.table::is.data.table(summarized_dt)) {
+    summarized_dt <- data.table::as.data.table(summarized_dt)
+  }
 
+  # Add 'row.names' column if missing (needed for merge)
+  if (!"row.names" %in% colnames(summarized_dt)) {
+    summarized_dt[, row.names := rownames(summarized_dt)]
+  }
+
+  # Calculate sum of all columns except 'row.names'
+  summarized_dt[, sum := rowSums(.SD, na.rm = TRUE), .SDcols = setdiff(names(summarized_dt), "row.names")]
+
+  # Merge with features using 'row.names' as key
   merged <- merge(
     x = features_dt,
-    y = summarized_dt[, list(row.names, sum)],
+    y = summarized_dt[, .(row.names, sum)],
     by.x = "V1",
     by.y = "row.names",
     all.x = FALSE,
     all.y = TRUE
   )
 
+  # Create GRanges object with merged data
   gr <- CreateGRangeObj(merged, feature_id)
   return(gr)
 }
+
