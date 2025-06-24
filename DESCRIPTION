@@ -16,6 +16,8 @@ Imports:
     data.table,
     ggplot2,
     dplyr
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
 Description: Provides functions for integrating, normalizing, and visualizing multi-omics datasets,
  including gene expression and ATAC-seq data. The package features genomic annotation,
  overlap analysis of genomic ranges, and interactive plots organized by chromosome.
