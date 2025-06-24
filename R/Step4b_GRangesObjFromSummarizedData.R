@@ -25,7 +25,7 @@ PrepareGRanges <- function(summarized_dt, features_dt, feature_id) {
 
   merged <- merge(
     x = features_dt,
-    y = summarized_dt[, data.table::.(row.names, sum)],
+    y = summarized_dt[, list(row.names, sum)],
     by.x = "V1",
     by.y = "row.names",
     all.x = FALSE,
