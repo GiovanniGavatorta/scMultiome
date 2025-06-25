@@ -58,27 +58,23 @@ knitr::kable(head(atac_peaks_dt))
 Use `SummarizeData` to compute the total counts per cell by summing across rows (genes or peaks) in both gene expression and ATAC-seq peak `data.table`s.
 
 ```{r}
-sum_data <- SummarizeData(gene_expr_dt, atac_peaks_dt)
-knitr::kable(head(sum_data$gene_totals))
-knitr::kable(head(sum_data$atac_totals))
+summary_results <- SummarizeData(gene_expr_dt, atac_peaks_dt)
+gene_totals <- summary_results$gene_totals
+atac_totals <- summary_results$atac_totals
+knitr::kable(head(gene_totals))
+knitr::kable(head(atac_totals))
 ```
 
 ## Create Genomic Ranges
-
-First, use `CreateGRangeObj` to convert a data.frame of genomic features and metadata into a `GRanges` object. It is typically used to convert ATAC-seq peaks or gene expression features into genomic ranges.
-
-```{r}
-df <- fread(system.file("extdata/features.tsv.gz", package = "scMultiome"), header = FALSE)
-gr <- CreateGRangeObj(specific_feature = df, feature_id = "Expr")
-```
-
-Then, use `PrepareGRanges` to processes summarized expression or ATAC-seq data by computing row sums and merging them with genomic coordinates from a features annotation file, before converting them into a `GRanges` object.
+Use `PrepareGRanges` to processes summarized expression or ATAC-seq data by computing row sums and merging them with genomic coordinates from a features annotation file, before converting them into a `GRanges` object.<br>
+This function uses the helper one `CreateGRangeObj` inside, it converts a data.frame of genomic features and metadata into a `GRanges` object. It is typically used to convert ATAC-seq peaks or gene expression features into genomic ranges.
 
 ```{r}
-library(data.table)
 features <- fread(system.file("extdata/features.tsv.gz", package = "scMultiome"), header = FALSE)
-expr_gr <- PrepareGRanges(gene_expr_dt, features, feature_id = "Expr")
-atac_gr <- PrepareGRanges(atac_peaks_dt, features, feature_id = "ATAC")
+gene_expr_dt$sum <- rowSums(gene_expr_dt[, -1, with = FALSE])
+atac_peaks_dt$sum <- rowSums(atac_peaks_dt[, -1, with = FALSE])
+gr_expr <- PrepareGRanges(gene_expr_dt, features_dt = features, feature_id = "Expr")
+gr_atac <- PrepareGRanges(atac_peaks_dt, features_dt = features, feature_id = "ATAC")
 ```
 
 ## Gene annotation for ATAC-seq data
@@ -87,7 +83,8 @@ Use `AnnotateATACwithGenes` to reads a GTF annotation file, filters for protein-
 
 ```{r}
 gtf_path <- system.file("extdata/Homo_sapiens.GRCh38.114.gtf.gz", package = "scMultiome")
-annotated_atac <- AnnotateATACwithGenes(gtf_path, atac_gr)
+annotated_atac <- AnnotateATACwithGenes(gtf_path, gr_atac)
+knitr::kable(head(annotated_atac))
 ```
 
 ## Finalize Expression Data with Protein-Coding Genes
@@ -97,8 +94,10 @@ Use `CreateProteinCodingGR` to import a GTF annotation file and filters it to ke
 And then use `FinalizeExpressionData` to take a GRanges object of expression data and filters it to retain only those entries that correspond to protein-coding genes (based on GTF annotation). It also adds gene symbol names as a metadata column for easier interpretation.
 
 ```{r}
+gtf_path <- system.file("extdata/Homo_sapiens.GRCh38.114.gtf.gz", package = "scMultiome")
 protein_coding_gr <- CreateProteinCodingGR(gtf_path)
-expr_filtered_gr <- FinalizeExpressionData(expr_gr, protein_coding_gr)
+expr_filtered <- FinalizeExpressionData(gr_expr, protein_coding_gr)
+knitr::kable(head(expr_filtered))
 ```
 
 ## Normalize and integrate datasets
@@ -106,28 +105,39 @@ expr_filtered_gr <- FinalizeExpressionData(expr_gr, protein_coding_gr)
 Use `NormalizeAndIntegrate` to performs normalization of gene expression and ATAC-seq counts using CPM (Counts Per Million), merges them based on shared gene IDs, and generates summary boxplots for quality control by chromosome.
 
 ```{r}
-integration_results <- NormalizeAndIntegrate(expr_filtered_gr, annotated_atac)
-knitr::kable(head(integration_results$merged_table))
+results <- NormalizeAndIntegrate(expr_filtered, annotated_atac)
+
+# Merged table
+knitr::kable(head(results$merged_table))
+# Unmatched gene sets
+knitr::kable(head(results$atac_not_merged))
+knitr::kable(head(results$expr_not_merged))
+# View plots
+print(results$plot_atac_by_chr)
+print(results$plot_expr_by_chr)
+
 ```
 
 ## Plot Expression vs ATAC-seq CPM
 
-Use `PlotExprVsATAC` to  generates scatter plots to visualize the relationship between log2-transformed CPM-normalized gene expression and ATAC-seq signals. If the dataset is too large, it creates separate plots for each chromosome.
+Use `PlotExprVsATAC` to generates scatter plots to visualize the relationship between log2-transformed CPM-normalized gene expression and ATAC-seq signals. If the dataset is too large, it creates separate plots for each chromosome.
 
 ```{r}
-scatter_plots <- PlotExprVsATAC(integration_results$merged_table, expr_filtered_gr)
+merged_data <- results$merged_table
+plot_result <- PlotExprVsATAC(merged_data, gr_expr)
 
 # Display plots
-if (inherits(scatter_plots, "ggplot")) {
-  print(scatter_plots)
+if (is.list(plot_result)) {
+  # Show first plot in the list, regardless of chromosome name
+  first_plot <- plot_result[[1]]
+  first_plot
 } else {
-  lapply(scatter_plots, print)
+  plot_result
 }
 ```
 
----
+------------------------------------------------------------------------
 
 # Session Info
 
-```{r}
-sessionInfo()
+\`\`\`{r} sessionInfo()
