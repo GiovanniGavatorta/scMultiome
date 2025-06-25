@@ -71,7 +71,7 @@ NormalizeAndIntegrate <- function(expr_gr, atac_annotated_gr) {
     expr_cpm = expr_cpm[mcols(expr_gr)$Expr_id]
   )
 
-  expr_chr_filtered <- expr_chr[gene_id %in% expr_only_genes]
+  expr_chr_filtered <- expr_chr[expr_chr[["gene_id"]] %in% expr_only_genes]
 
   p1 <- ggplot(atac_chr, aes(x = chr, y = atac_cpm)) +
     geom_boxplot() +
