@@ -17,6 +17,8 @@ suppressMessages(library(data.table))
 suppressMessages(library(dplyr)) 
 suppressMessages(library(tidyr)) 
 suppressMessages(library(ggplot2))
+suppressMessages(library(IRanges))
+suppressMessages(library(rtracklayer))
 ```
 
 # Introduction
